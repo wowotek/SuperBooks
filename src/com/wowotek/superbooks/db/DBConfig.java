@@ -7,4 +7,5 @@ public class DBConfig {
 	public static final String DB_USE_SSL = "false";
 	public static final String DB_AUTO_RECONNECT = "true";
 	public static final int DB_NUMBER_OF_RETRIES = 3;
+	public static final boolean DB_VERBOSE_ERROR = false;
 }

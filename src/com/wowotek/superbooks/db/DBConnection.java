@@ -7,11 +7,35 @@ import static com.wowotek.superbooks.db.DBConfig.*;
 
 public class DBConnection
 {
-	private Connection c;
+	public boolean Connected;
+	private boolean verbose = DB_VERBOSE_ERROR;
+	public Connection c;
 	
 	public DBConnection()
 	{
-		Connect();
+		Thread thread_connection = new Thread()
+		{
+			@Override
+			public void start()
+			{
+				Connected = Connect();
+			}
+		};
+		
+		try
+		{
+			System.out.println("Connecting to Database...");
+			thread_connection.start();
+			thread_connection.join();
+			if(!Connected)
+			{
+				System.out.println("Could Not Connect to Databases ! Exiting Program !");
+			}
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex.getMessage());
+		}
 	}
 	
 	private boolean createConnection()
@@ -30,30 +54,62 @@ public class DBConnection
 			return true;
 		} catch(ClassNotFoundException | InstantiationException | IllegalAccessException cnfe)
 		{
-			System.out.println(cnfe.getMessage());
+			if(verbose)
+				System.out.println("	" + cnfe.getMessage());
 			return false;
 		} catch(SQLException ex)
 		{
-			System.out.println(ex.getMessage());
+			if(verbose)
+				System.out.println("	" + ex.getMessage());
 			return false;
 		}
 	}
 	
-	private void Connect()
+	private boolean Connect()
 	{
 		for(int i = 0; i < DB_NUMBER_OF_RETRIES; i++)
 		{
 			if(createConnection() == true)
 			{
-				System.out.println("Connection Established!");
-				break;
-				
+				System.out.println("Database Berhasil Terhubung!");
+				return true;
 			}
 			else
 			{
-				System.out.println("Connection Failed!");
+				if(verbose)
+				{
+					System.out.println("	Connection Failed!");
+					System.out.println("	Retrying...");
+					System.out.println("	Total Tries = " + (i+1) + "/" + DB_NUMBER_OF_RETRIES);
+				}
 				continue;
 			}
+		}
+		return false;
+	}
+	
+	public boolean Disconnect()
+	{
+		try
+		{
+			this.c.close();
+			if(this.c.isClosed())
+			{
+				System.out.println("Koneksi Database Berhasil Ditutup");
+				return true;
+			}
+			else
+			{
+				throw new SQLException("Gagal Menutup Koneksi Database !");
+			}
+		}
+		catch(SQLException ex)
+		{
+			if(verbose)
+			{
+				System.out.println(ex.getMessage());
+			}
+			return false;
 		}
 	}
 }
