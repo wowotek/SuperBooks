@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 import com.wowotek.superbooks.db.targetclass.*;
 
-public class DBControl
+public class DBFinanceControl
 {
 	private Connection c;
 
-	DBControl(Connection c)
+	DBFinanceControl(Connection c)
 	{
 		this.c = c;
 	}
